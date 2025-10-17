@@ -2,6 +2,7 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Search, Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 export const Navbar = () => {
   return (
@@ -16,13 +17,13 @@ export const Navbar = () => {
             
             {/* Navigation Links - Hidden on mobile */}
             <div className="hidden md:flex items-center gap-6">
-              <a href="#" className="text-sm font-medium hover:text-primary transition-colors">
+              <a href="#" onClick={(e) => { e.preventDefault(); toast("Browse is coming soon."); }} className="text-sm font-medium hover:text-primary transition-colors">
                 Browse
               </a>
-              <a href="#" className="text-sm font-medium hover:text-primary transition-colors">
+              <a href="#" onClick={(e) => { e.preventDefault(); toast("Following is coming soon."); }} className="text-sm font-medium hover:text-primary transition-colors">
                 Following
               </a>
-              <a href="#" className="text-sm font-medium hover:text-primary transition-colors">
+              <a href="#" onClick={(e) => { e.preventDefault(); toast("Categories is coming soon."); }} className="text-sm font-medium hover:text-primary transition-colors">
                 Categories
               </a>
             </div>

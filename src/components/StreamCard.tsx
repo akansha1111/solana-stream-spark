@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Eye } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface StreamCardProps {
   thumbnail: string;
@@ -23,7 +24,13 @@ export const StreamCard = ({
   avatar 
 }: StreamCardProps) => {
   return (
-    <Card className="group overflow-hidden border-border/50 bg-card/50 hover:bg-card/80 transition-all hover:shadow-lg hover:shadow-primary/10 cursor-pointer">
+    <Card
+      className="group overflow-hidden border-border/50 bg-card/50 hover:bg-card/80 transition-all hover:shadow-lg hover:shadow-primary/10 cursor-pointer"
+      role="button"
+      tabIndex={0}
+      onClick={() => toast("Stream playback is coming soon.")}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toast("Stream playback is coming soon."); } }}
+    >
       <div className="relative aspect-video overflow-hidden">
         <img 
           src={thumbnail} 

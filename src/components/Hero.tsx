@@ -37,14 +37,19 @@ export const Hero = () => {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {connected ? (
-              <Button size="lg" className="gradient-primary border-0 glow-primary group">
+              <Button size="lg" className="gradient-primary border-0 glow-primary group" onClick={() => window.alert('Creator studio is coming soon!')}>
                 <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                 Start Streaming
               </Button>
             ) : (
               <WalletMultiButton className="!text-base !h-12 !px-6" />
             )}
-            <Button size="lg" variant="outline" className="border-primary/20">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-primary/20"
+              onClick={() => document.getElementById('streams')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            >
               Explore Streams
             </Button>
           </div>
