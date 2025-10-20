@@ -2,9 +2,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Eye } from 'lucide-react';
-import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface StreamCardProps {
+  id: string;
   thumbnail: string;
   title: string;
   streamer: string;
@@ -15,6 +16,7 @@ interface StreamCardProps {
 }
 
 export const StreamCard = ({ 
+  id,
   thumbnail, 
   title, 
   streamer, 
@@ -23,13 +25,23 @@ export const StreamCard = ({
   isLive = true,
   avatar 
 }: StreamCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (id.startsWith('mock-')) {
+      navigate('/go-live');
+    } else {
+      navigate(`/stream/${id}`);
+    }
+  };
+
   return (
     <Card
       className="group overflow-hidden border-border/50 bg-card/50 hover:bg-card/80 transition-all hover:shadow-lg hover:shadow-primary/10 cursor-pointer"
       role="button"
       tabIndex={0}
-      onClick={() => toast("Stream playback is coming soon.")}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toast("Stream playback is coming soon."); } }}
+      onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
     >
       <div className="relative aspect-video overflow-hidden">
         <img 
