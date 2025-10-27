@@ -21,6 +21,9 @@ interface StreamData {
   is_live: boolean;
   viewer_count: number;
   created_at: string;
+  is_external: boolean;
+  external_platform: string | null;
+  external_url: string | null;
 }
 
 interface ChatMessage {
@@ -160,17 +163,33 @@ export default function Stream() {
           {/* Video Player Section */}
           <div className="lg:col-span-2 space-y-4">
             <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-              <video
-                ref={videoRef}
-                className="w-full h-full object-cover"
-                poster={stream.thumbnail_url}
-                autoPlay
-                playsInline
-              />
+              {stream.is_external ? (
+                <iframe
+                  src={stream.external_url || ''}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-cover"
+                  poster={stream.thumbnail_url}
+                  autoPlay
+                  playsInline
+                />
+              )}
               {stream.is_live && (
-                <Badge className="absolute top-4 left-4 bg-red-600 text-white">
-                  LIVE
-                </Badge>
+                <div className="absolute top-4 left-4 flex gap-2">
+                  <Badge className="bg-red-600 text-white">
+                    LIVE
+                  </Badge>
+                  {stream.is_external && (
+                    <Badge variant="secondary">
+                      {stream.external_platform}
+                    </Badge>
+                  )}
+                </div>
               )}
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
                 <div className="flex items-center gap-2">

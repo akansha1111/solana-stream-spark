@@ -42,6 +42,9 @@ export default function GoLive() {
     description: '',
     category: 'Just Chatting',
     thumbnail_url: 'https://images.unsplash.com/photo-1614332287897-cdc485fa562d?w=800&h=450&fit=crop',
+    streamType: 'webcam' as 'webcam' | 'external',
+    externalUrl: '',
+    externalPlatform: 'YouTube' as 'YouTube' | 'Twitch' | 'X' | 'Other',
   });
 
   useEffect(() => {
@@ -111,6 +114,11 @@ export default function GoLive() {
       return;
     }
 
+    if (formData.streamType === 'external' && !formData.externalUrl) {
+      toast.error('Please provide a stream URL');
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('streams')
@@ -123,6 +131,9 @@ export default function GoLive() {
           is_live: true,
           viewer_count: 0,
           stream_key: crypto.randomUUID(),
+          is_external: formData.streamType === 'external',
+          external_platform: formData.streamType === 'external' ? formData.externalPlatform : null,
+          external_url: formData.streamType === 'external' ? formData.externalUrl : null,
         })
         .select()
         .single();
@@ -132,11 +143,7 @@ export default function GoLive() {
       setStreamId(data.id);
       setIsStreaming(true);
       toast.success('You are now live!');
-      
-      // Navigate to the stream page
-      setTimeout(() => {
-        navigate(`/stream/${data.id}`);
-      }, 1000);
+      navigate(`/stream/${data.id}`);
     } catch (error) {
       toast.error('Failed to start stream');
       console.error('Stream creation error:', error);
@@ -279,11 +286,68 @@ export default function GoLive() {
                   </Select>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="streamType">Stream Type *</Label>
+                  <Select
+                    value={formData.streamType}
+                    onValueChange={(value: 'webcam' | 'external') => setFormData({ ...formData, streamType: value })}
+                    disabled={isStreaming}
+                  >
+                    <SelectTrigger id="streamType">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="webcam">Webcam/Screen Share</SelectItem>
+                      <SelectItem value="external">External Platform (YouTube, Twitch, X)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {formData.streamType === 'external' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="platform">Platform *</Label>
+                      <Select
+                        value={formData.externalPlatform}
+                        onValueChange={(value: 'YouTube' | 'Twitch' | 'X' | 'Other') => 
+                          setFormData({ ...formData, externalPlatform: value })
+                        }
+                        disabled={isStreaming}
+                      >
+                        <SelectTrigger id="platform">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="YouTube">YouTube</SelectItem>
+                          <SelectItem value="Twitch">Twitch</SelectItem>
+                          <SelectItem value="X">X (Twitter)</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="externalUrl">Stream URL/Embed Code *</Label>
+                      <Textarea
+                        id="externalUrl"
+                        placeholder="Paste YouTube embed URL, Twitch channel URL, or embed code..."
+                        value={formData.externalUrl}
+                        onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
+                        disabled={isStreaming}
+                        rows={2}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Example: https://www.youtube.com/embed/VIDEO_ID or https://www.twitch.tv/CHANNEL_NAME
+                      </p>
+                    </div>
+                  </>
+                )}
+
                 {!isStreaming ? (
                   <Button
                     className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
                     onClick={handleGoLive}
-                    disabled={!formData.title}
+                    disabled={!formData.title || (formData.streamType === 'external' && !formData.externalUrl)}
                   >
                     Go Live
                   </Button>
