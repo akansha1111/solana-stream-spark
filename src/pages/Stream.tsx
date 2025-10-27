@@ -53,15 +53,15 @@ export default function Stream() {
         .from('streams')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (error) {
+      if (error || !data) {
         toast.error('Stream not found');
         navigate('/');
         return;
       }
 
-      setStream(data);
+      setStream(data as any);
     };
 
     fetchStream();

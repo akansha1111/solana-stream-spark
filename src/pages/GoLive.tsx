@@ -48,11 +48,8 @@ export default function GoLive() {
   });
 
   useEffect(() => {
-    if (!connected) {
-      toast.error('Please connect your wallet first');
-      navigate('/');
-    }
-  }, [connected, navigate]);
+    // Avoid redirecting on mount; show UI gating instead
+  }, []);
 
   useEffect(() => {
     startPreview();
@@ -120,6 +117,29 @@ export default function GoLive() {
     }
 
     try {
+      // Normalize external URLs for popular platforms
+      let externalUrl: string | null = null;
+      if (formData.streamType === 'external') {
+        const raw = formData.externalUrl.trim();
+        const platform = formData.externalPlatform;
+        try {
+          if (platform === 'YouTube') {
+            const match = raw.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+            const id = match ? match[1] : null;
+            externalUrl = id ? `https://www.youtube.com/embed/${id}` : raw;
+          } else if (platform === 'Twitch') {
+            const m = raw.match(/twitch\.tv\/([A-Za-z0-9_]+)/i);
+            const channel = m ? m[1] : raw;
+            const parent = window.location.hostname;
+            externalUrl = `https://player.twitch.tv/?channel=${channel}&parent=${parent}&muted=true`;
+          } else {
+            externalUrl = raw;
+          }
+        } catch {
+          externalUrl = raw;
+        }
+      }
+
       const { data, error } = await supabase
         .from('streams')
         .insert({
@@ -133,7 +153,7 @@ export default function GoLive() {
           stream_key: crypto.randomUUID(),
           is_external: formData.streamType === 'external',
           external_platform: formData.streamType === 'external' ? formData.externalPlatform : null,
-          external_url: formData.streamType === 'external' ? formData.externalUrl : null,
+          external_url: formData.streamType === 'external' ? externalUrl : null,
         })
         .select()
         .single();
@@ -174,6 +194,15 @@ export default function GoLive() {
 
   return (
     <div className="min-h-screen bg-background pt-20">
+      {!connected && (
+        <div className="container mx-auto px-4 py-4">
+          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 text-center">
+            <p className="text-yellow-600 dark:text-yellow-400">
+              Please connect your wallet first to start streaming
+            </p>
+          </div>
+        </div>
+      )}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Preview Section */}
